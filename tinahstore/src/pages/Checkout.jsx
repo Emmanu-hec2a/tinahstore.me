@@ -9,7 +9,7 @@ import { api } from '../services/api.js';
 import { WishlistContext } from '../context/WishlistContext.jsx';
 
 export default function Checkout() {
-  const [payment, setPayment] = useState('mpesa');
+  const [payment, setPayment] = useState('manual');
   const [isSubmitting, setSubmitting] = useState(false);
   const [canSubmitManual, setCanSubmitManual] = useState(false);
   const [manualTimer, setManualTimer] = useState(30);
@@ -107,14 +107,10 @@ export default function Checkout() {
             <div className="form-section">
               <h3>Payment method</h3>
               <div className="pay-options">
-                <PayOption active={payment === 'mpesa'} onChange={() => { setPayment('mpesa'); setManualTimer(30); setCanSubmitManual(false); }} name="pay" value="mpesa" icon="phone" label="M-PESA (Automated STK)">
-                  <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
-                    A 60% deposit will be requested via M-PESA. The remaining 40% is paid in cash on delivery.
-                  </p>
-                  <p className="muted" style={{ fontSize: 12.5 }}>You'll receive an STK push prompt on your phone to complete payment.</p>
-                </PayOption>
-
-                <PayOption active={payment === 'manual'} onChange={() => { setPayment('manual'); setManualTimer(30); setCanSubmitManual(false); }} name="pay" value="manual" icon="creditCard" label="Send Money (Manual)">
+                <PayOption active={payment === 'manual'} onChange={() => { setPayment('manual'); setManualTimer(30); setCanSubmitManual(false); }} name="pay" value="manual" icon="phone" label="Mobile Money (M-PESA / Airtel)">
+                  <div style={{ background: 'var(--oxblood-pale)', padding: '12px', borderRadius: 8, fontSize: 13, color: 'var(--oxblood)', marginBottom: 16, border: '1px solid var(--oxblood)' }}>
+                    <p><b>Note:</b> Automated STK Push is currently undergoing maintenance. Please use the manual <b>Send Money</b> option below to secure your order.</p>
+                  </div>
                   <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
                     Send the 60% deposit (<b>{formatKes(cart.total * 0.6)}</b>) to:
                   </p>
@@ -122,24 +118,15 @@ export default function Checkout() {
                     <p><b>M-PESA:</b> 0715877563 (Tinah)</p>
                     <p><b>Airtel Money:</b> 0750243752 (Tinah)</p>
                   </div>
-                  <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>Your order will be processed once we verify the transaction.</p>
-                </PayOption>
-
-                <PayOption active={payment === 'card'} onChange={() => setPayment('card')} name="pay" value="card" icon="creditCard" label="Credit / debit card">
-                  <Field className="full" label="Card number" placeholder="0000 0000 0000 0000" disabled />
-                  <div className="form-grid">
-                    <Field label="Expiry" placeholder="MM/YY" disabled />
-                    <Field label="CVV" placeholder="123" disabled />
-                  </div>
-                  <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Card payments are coming soon. Please use M-PESA for now.</p>
+                  <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>Your order will be processed once we verify the transaction. Remaining 40% paid in cash on delivery.</p>
                 </PayOption>
               </div>
             </div>
             <button
               className="btn btn-primary btn-block"
-              disabled={isSubmitting || cart.items.length === 0 || payment === 'card' || (payment === 'manual' && !canSubmitManual)}
+              disabled={isSubmitting || cart.items.length === 0 || (payment === 'manual' && !canSubmitManual)}
             >
-              {isSubmitting ? 'Placing order...' : (payment === 'manual' && !canSubmitManual) ? `I have paid (${manualTimer}s)` : 'Place order'}
+              {isSubmitting ? 'Placing order...' : (payment === 'manual' && !canSubmitManual) ? `I have sent the deposit (${manualTimer}s)` : 'Place order'}
             </button>
             {payment === 'manual' && !canSubmitManual && (
               <p className="muted text-center" style={{ fontSize: 12, marginTop: 10 }}>Proceed to pay, will be enabled once payment is sent</p>

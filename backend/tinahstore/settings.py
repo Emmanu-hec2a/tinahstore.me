@@ -2,10 +2,8 @@ import os
 from pathlib import Path
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environ
 env = environ.Env(
     DEBUG=(bool, False),
     DEPOSIT_PERCENTAGE=(float, 0.60),
@@ -13,19 +11,17 @@ env = environ.Env(
     FREE_DELIVERY_THRESHOLD=(int, 5000),
 )
 
-# Read .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# ── Core ─────────────────────────────────────────────────────────────────────
 
 SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*'] # In production, restrict this
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
-# Application definition
+# ── Applications ──────────────────────────────────────────────────────────────
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,8 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third-party apps
+    'django.contrib.sites',
+
+    # Third-party
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -44,20 +41,24 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    
-    # Local apps
+
+    # Local
     'products',
     'orders',
     'payments',
     'core',
 ]
 
+# ── Middleware ────────────────────────────────────────────────────────────────
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',          # must be first
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',      # serve static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',  # CSRF handled by DRF Token Auth
+    # CSRF disabled intentionally — API uses Token auth, not session cookies
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -84,72 +85,66 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tinahstore.wsgi.application'
 
+# ── Database ──────────────────────────────────────────────────────────────────
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# We use django-environ to parse the DATABASE_URL from the .env file
-# Example: postgres://user:password@localhost:5432/tinahstore
 DATABASES = {
     'default': env.db('DATABASE_URL')
 }
 
-# Caching
-# Using local memory cache for development, redis recommended for production
+# ── Cache ─────────────────────────────────────────────────────────────────────
+# LocMemCache is fine for single-instance dev/production on Railway.
+# Upgrade to Redis if you ever run multiple Railway replicas (token caching
+# for Daraja access tokens must be shared across instances).
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+        'LOCATION': 'tinahstore-cache',
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+# ── Password validation ───────────────────────────────────────────────────────
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+# ── Internationalisation ──────────────────────────────────────────────────────
 
 LANGUAGE_CODE = 'en-us'
+TIME_ZONE     = 'Africa/Nairobi'
+USE_I18N      = True
+USE_TZ        = True
 
-TIME_ZONE = 'Africa/Nairobi'
+# ── Static & media files ──────────────────────────────────────────────────────
 
-USE_I18N = True
+STATIC_URL  = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-USE_TZ = True
+# WhiteNoise — compressed static files with long-lived cache headers
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Media — local in development, swap for S3/R2 in production (see below)
+MEDIA_URL  = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+# ── S3 / Cloudflare R2 media storage (uncomment when ready) ──────────────────
+# pip install django-storages boto3
+#
+DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID       = env('R2_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL')   # e.g. https://<accountid>.r2.cloudflarestorage.com
+AWS_S3_CUSTOM_DOMAIN    = env('R2_PUBLIC_URL', default='')
+AWS_DEFAULT_ACL         = 'public-read'
+AWS_QUERYSTRING_AUTH    = False
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# ── DRF ──────────────────────────────────────────────────────────────────────
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# DRF Settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -161,55 +156,93 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 12,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        # BrowsableAPIRenderer only in debug mode — remove in production for
+        # a small security improvement (hides endpoint discovery UI)
+        *(['rest_framework.renderers.BrowsableAPIRenderer'] if DEBUG else []),
     ],
 }
 
-# CORS Settings
-# We'll be more permissive in development to avoid common connection issues
-CORS_ALLOW_ALL_ORIGINS = True
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# In development CORS_ALLOW_ALL_ORIGINS=True is fine.
+# In production it reads from the env var so only your domains are whitelisted.
+
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = env.list(
+        'CORS_ALLOWED_ORIGINS',
+        default=[
+            'https://tinahstore.co.ke',
+            'https://tinahstore.pages.dev',
+            'https://admin-tinahstore.pages.dev',
+        ]
+    )
+
 CORS_ALLOW_CREDENTIALS = True
 
-# TinahStore Business Logic Settings
-DEPOSIT_PERCENTAGE = env('DEPOSIT_PERCENTAGE')
-DELIVERY_FEE = env('DELIVERY_FEE')
-FREE_DELIVERY_THRESHOLD = env('FREE_DELIVERY_THRESHOLD')
+# ── Security headers (production only) ───────────────────────────────────────
 
-# M-PESA Daraja Settings
-MPESA_CONSUMER_KEY = env('MPESA_CONSUMER_KEY')
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER      = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT          = True
+    SESSION_COOKIE_SECURE        = True
+    CSRF_COOKIE_SECURE           = True
+    SECURE_HSTS_SECONDS          = 31536000   # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD          = True
+    SECURE_CONTENT_TYPE_NOSNIFF  = True
+
+# ── Business logic ────────────────────────────────────────────────────────────
+
+DEPOSIT_PERCENTAGE       = env('DEPOSIT_PERCENTAGE')
+DELIVERY_FEE             = env('DELIVERY_FEE')
+FREE_DELIVERY_THRESHOLD  = env('FREE_DELIVERY_THRESHOLD')
+
+# ── M-PESA Daraja ─────────────────────────────────────────────────────────────
+
+MPESA_CONSUMER_KEY    = env('MPESA_CONSUMER_KEY')
 MPESA_CONSUMER_SECRET = env('MPESA_CONSUMER_SECRET')
-MPESA_SHORTCODE = env('MPESA_SHORTCODE')
-MPESA_PASSKEY = env('MPESA_PASSKEY')
-MPESA_CALLBACK_URL = env('MPESA_CALLBACK_URL')
-MPESA_ENV = env('MPESA_ENV', default='sandbox')
+MPESA_SHORTCODE       = env('MPESA_SHORTCODE')
+MPESA_PASSKEY         = env('MPESA_PASSKEY')
+MPESA_CALLBACK_URL    = env('MPESA_CALLBACK_URL')
+MPESA_ENV             = env('MPESA_ENV', default='sandbox')
 
-# Telegram Alerts Settings
+# ── Telegram alerts ───────────────────────────────────────────────────────────
+
 TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
-# Multiple chat IDs as a list of strings
-TELEGRAM_CHAT_IDS = env.list('TELEGRAM_CHAT_IDS', default=[])
+TELEGRAM_CHAT_IDS  = env.list('TELEGRAM_CHAT_IDS', default=[])
 
-# Auth & Social Settings
+# ── Google OAuth ──────────────────────────────────────────────────────────────
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SITE_ID = 1
-ACCOUNT_EMAIL_VERIFICATION = 'none' # For simplicity in dev
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_EMAIL_VERIFICATION       = 'none'
+ACCOUNT_AUTHENTICATION_METHOD    = 'email'
+ACCOUNT_EMAIL_REQUIRED           = True
+ACCOUNT_USERNAME_REQUIRED        = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
-GOOGLE_OAUTH_CLIENT_ID = env('GOOGLE_OAUTH_CLIENT_ID', default='')
+GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID', default='')
 GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
             'client_id': GOOGLE_OAUTH_CLIENT_ID,
-            'secret': GOOGLE_OAUTH_CLIENT_SECRET,
-            'key': ''
-        }
+            'secret':    GOOGLE_OAUTH_CLIENT_SECRET,
+            'key':       ''
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

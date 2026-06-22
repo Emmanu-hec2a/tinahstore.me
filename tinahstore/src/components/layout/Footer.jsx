@@ -36,8 +36,8 @@ export default function Footer({ compact = false }) {
         <div className="footer-col">
           <h4>Connect</h4>
           <div className="contact-line"><Icon name="mapPin" className="icon icon-sm" /> Nairobi, Kenya</div>
-          <div className="contact-line"><Icon name="phone" className="icon icon-sm" /> +254 700 000 000</div>
-          <div className="contact-line"><Icon name="mail" className="icon icon-sm" /> hello@tinahstore.co.ke</div>
+          <div className="contact-line"><Icon name="phone" className="icon icon-sm" /> +254 715 877 563</div>
+          <div className="contact-line"><Icon name="mail" className="icon icon-sm" /> support@tinahstore.store</div>
         </div>
       </div>
       <div className="container footer-bottom">

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { ordersService } from '../services/orders';
+import { paymentsService } from '../services/payments';
 
 export const AdminContext = createContext();
 
