@@ -1,0 +1,6 @@
+/admin-panel/.env
+/admin-panel/node_modules
+
+/backend/.env
+/tinahstore/node_modules
+/tinahstore/.env

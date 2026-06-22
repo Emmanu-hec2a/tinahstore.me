@@ -1,0 +1,9 @@
+django>=5.0,<6.0
+djangorestframework
+django-cors-headers
+Pillow
+django-environ
+requests
+psycopg2-binary
+django-allauth
+dj-rest-auth
