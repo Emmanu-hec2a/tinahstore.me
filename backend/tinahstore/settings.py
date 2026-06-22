@@ -87,9 +87,16 @@ WSGI_APPLICATION = 'tinahstore.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
 
+import dj_database_url
+
 DATABASES = {
-    'default': env.db('DATABASE_URL')
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
+
 
 # ── Cache ─────────────────────────────────────────────────────────────────────
 # LocMemCache is fine for single-instance dev/production on Railway.
