@@ -4,5 +4,5 @@ from dj_rest_auth.registration.views import SocialLoginView
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://localhost:3000/auth/callback/" # This should match your frontend callback
+    callback_url = "http://tinahstore.up.railway.app/auth/callback/" # This should match your frontend callback
     client_class = OAuth2Client

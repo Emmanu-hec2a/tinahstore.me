@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
   };
 
   const googleLogin = async (accessToken) => {
-    const response = await axios.post(`${API_URL}/auth/google/`, { access_token: accessToken });
+    const response = await axios.post(`${API_URL}/auth/google/`, { access_token: accessToken,  id_token: accessToken });
     const { key } = response.data;
     localStorage.setItem('ts_auth_token', key);
     setToken(key);
