@@ -236,6 +236,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
 GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID', default='')
 GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
+GOOGLE_OAUTH_CALLBACK_URL  = env('GOOGLE_OAUTH_CALLBACK_URL', default='http://localhost:5173/auth/callback/')
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -246,6 +247,7 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
+        'CALLBACK_URL': GOOGLE_OAUTH_CALLBACK_URL,
     }
 }
 
