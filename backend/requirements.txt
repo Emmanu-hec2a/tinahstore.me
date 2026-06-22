@@ -12,3 +12,4 @@ cryptography
 django-storages
 boto3
 dj_database_url
+gunicorn
