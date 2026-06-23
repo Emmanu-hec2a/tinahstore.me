@@ -48,7 +48,11 @@ export function AuthProvider({ children }) {
   };
 
   const googleLogin = async (accessToken) => {
-    const response = await axios.post(`${API_URL}/auth/google/`, { access_token: accessToken,  id_token: accessToken });
+    // Only send the access_token.
+    // Sending the same value as id_token causes 400 because id_token must be a JWT.
+    const response = await axios.post(`${API_URL}/auth/google/`, {
+      access_token: accessToken
+    });
     const { key } = response.data;
     localStorage.setItem('ts_auth_token', key);
     setToken(key);
