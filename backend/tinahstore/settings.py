@@ -239,15 +239,6 @@ GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID', default='')
 GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
 GOOGLE_OAUTH_CALLBACK_URL  = env('GOOGLE_OAUTH_CALLBACK_URL', default='http://localhost:5173/auth/callback/')
 
-# Tell allauth to use token auth, not session/CSRF
-SOCIALACCOUNT_STORE_TOKENS = True
-
-REST_AUTH = {
-    'USE_JWT': False,
-    'SESSION_LOGIN': False,   # ← this stops the CSRF requirement
-    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
-}
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
@@ -260,6 +251,13 @@ SOCIALACCOUNT_PROVIDERS = {
         'CALLBACK_URL': GOOGLE_OAUTH_CALLBACK_URL,
     }
 }
+
+REST_AUTH = {
+    'SESSION_LOGIN': False,
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+}
+
+SOCIALACCOUNT_STORE_TOKENS = True
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 
