@@ -240,9 +240,10 @@ GOOGLE_OAUTH_CALLBACK_URL  = env(
 )
 
 REST_AUTH = {
-    "REGISTER_SERIALIZER": "dj_rest_auth.registration.serializers.RegisterSerializer",
+    'SESSION_LOGIN': False,
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+    'REGISTER_SERIALIZER': 'core.serializers.RegisterSerializer',
 }
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
@@ -254,11 +255,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
         'CALLBACK_URL': GOOGLE_OAUTH_CALLBACK_URL,
     }
-}
-
-REST_AUTH = {
-    'SESSION_LOGIN': False,
-    'TOKEN_MODEL':   'rest_framework.authtoken.models.Token',
 }
 
 SOCIALACCOUNT_STORE_TOKENS = True
