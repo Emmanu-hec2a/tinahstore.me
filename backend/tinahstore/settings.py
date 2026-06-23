@@ -227,11 +227,10 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_VERIFICATION = "none"
 
 GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID',     default='')
 GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
@@ -239,6 +238,10 @@ GOOGLE_OAUTH_CALLBACK_URL  = env(
     'GOOGLE_OAUTH_CALLBACK_URL',
     default='http://localhost:5173/auth/callback/'
 )
+
+REST_AUTH = {
+    "REGISTER_SERIALIZER": "dj_rest_auth.registration.serializers.RegisterSerializer",
+}
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
