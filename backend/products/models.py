@@ -73,7 +73,7 @@ class ProductImage(models.Model):
             clean_name = f"products/{self.product_id}_{slugify(os.path.splitext(self.image.name)[0])}.jpg"
             self.image.save(clean_name, ContentFile(output.read()), save=False)
 
-    super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Image for {self.product.name}"
