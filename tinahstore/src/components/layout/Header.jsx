@@ -51,9 +51,32 @@ export default function Header() {
           </Link>
           <Link to="/wishlist" className="icon-btn" aria-label="Wishlist"><Icon name="heart" />{wishlist.count > 0 && <span className="badge">{wishlist.count}</span>}</Link>
           <Link to="/cart" className="icon-btn" aria-label="Cart"><Icon name="bag" /><span className="badge">{cart.count}</span></Link>
-          <button className="icon-btn nav-toggle" aria-label="Menu" onClick={() => setNavOpen((open) => !open)}><Icon name="menu" /></button>
+          <button
+            className={`icon-btn nav-toggle ${navOpen ? 'active' : ''}`}
+            aria-label="Menu"
+            onClick={() => setNavOpen((open) => !open)}
+            style={{ position: 'relative', zIndex: 110 }}
+          >
+            <Icon name={navOpen ? "x" : "menu"} />
+          </button>
         </div>
       </div>
+
+      {/* Mobile Nav Drawer */}
+      <nav className={`main-nav ${navOpen ? 'open' : ''}`}>
+        <NavLink to="/" onClick={() => setNavOpen(false)}>Home</NavLink>
+        <NavLink to="/shop" onClick={() => setNavOpen(false)}>Shop</NavLink>
+        <a href="/#about" onClick={() => setNavOpen(false)}>About</a>
+        <a href="/#contact" onClick={() => setNavOpen(false)}>Contact</a>
+      </nav>
+
+      {/* Mobile Nav Overlay */}
+      {navOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] md:hidden"
+          onClick={() => setNavOpen(false)}
+        ></div>
+      )}
       <div className={`search-bar ${searchOpen ? 'open' : ''}`}>
         <form className="container" onSubmit={submitSearch}>
           <Icon name="search" />
