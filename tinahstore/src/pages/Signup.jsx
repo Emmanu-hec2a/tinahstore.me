@@ -26,6 +26,7 @@ export default function Signup() {
     try {
       await axios.post(`${API_URL}/auth/registration/`, {
         email,
+        username: email,
         password1: password,
         password2: confirmPassword,
       });
