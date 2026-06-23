@@ -27,12 +27,13 @@ ALLOWED_HOSTS = env.list(
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'django.contrib.sites',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
+
 
     # Third-party
     'rest_framework',
@@ -242,7 +243,7 @@ GOOGLE_OAUTH_CALLBACK_URL  = env(
 REST_AUTH = {
     'SESSION_LOGIN': False,
     'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
-    'REGISTER_SERIALIZER': 'core.serializers.RegisterSerializer',
+    'REGISTER_SERIALIZER': 'core.serializers.CustomRegisterSerializer',  # ← fix this
 }
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
