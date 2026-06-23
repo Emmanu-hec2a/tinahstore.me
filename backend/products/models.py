@@ -57,24 +57,29 @@ class ProductImage(models.Model):
 
     def save(self, *args, **kwargs):
         if self.image:
-            img = Image.open(self.image)
+            try:
+                img = Image.open(self.image)
 
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
+                if img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
 
-            max_size = (1200, 1200)
-            img.thumbnail(max_size, Image.Resampling.LANCZOS)
+                max_size = (1200, 1200)
+                img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
-            output = BytesIO()
-            img.save(output, format='JPEG', quality=85, optimize=True)
-            output.seek(0)
+                output = BytesIO()
+                img.save(output, format='JPEG', quality=85, optimize=True)
+                output.seek(0)
 
-            # ✅ Clean filename — no spaces, no original name mess
-            clean_name = f"products/{self.product_id}_{slugify(os.path.splitext(self.image.name)[0])}.jpg"
-            self.image.save(clean_name, ContentFile(output.read()), save=False)
+                clean_name = f"products/{self.product_id}_{slugify(os.path.splitext(self.image.name)[0])}.jpg"
+                print(f"DEBUG: Saving image as {clean_name}")  # ← debug
+                self.image.save(clean_name, ContentFile(output.read()), save=False)
+                print(f"DEBUG: Image saved successfully, URL: {self.image.url}")  # ← debug
+
+            except Exception as e:
+                print(f"DEBUG ERROR: {e}")  # ← debug
+                raise  # re-raise so we see it
 
         super().save(*args, **kwargs)
-
     def __str__(self):
         return f"Image for {self.product.name}"
 
