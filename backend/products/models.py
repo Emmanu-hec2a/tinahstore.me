@@ -57,29 +57,23 @@ class ProductImage(models.Model):
 
     def save(self, *args, **kwargs):
         if self.image:
-            # Open the image using Pillow
             img = Image.open(self.image)
-            
-            # Convert to RGB if necessary (to support JPEG)
+
             if img.mode in ("RGBA", "P"):
                 img = img.convert("RGB")
-            
-            # Reduce size if too large (max 1200px width/height)
+
             max_size = (1200, 1200)
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
-            
-            # Save the compressed image back to a BytesIO object
+
             output = BytesIO()
-            # quality=85 is a good balance between size and quality
             img.save(output, format='JPEG', quality=85, optimize=True)
             output.seek(0)
-            
-            # Update the image field with the compressed content
-            # Strip extension and add .jpg
-            name = os.path.splitext(self.image.name)[0]
-            self.image.save(f"{name}.jpg", ContentFile(output.read()), save=False)
-            
-        super().save(*args, **kwargs)
+
+            # ✅ Clean filename — no spaces, no original name mess
+            clean_name = f"products/{self.product_id}_{slugify(os.path.splitext(self.image.name)[0])}.jpg"
+            self.image.save(clean_name, ContentFile(output.read()), save=False)
+
+    super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Image for {self.product.name}"
