@@ -27,7 +27,7 @@ export default function Signup() {
     try {
       await axios.post(`${API_URL}/auth/registration/`, {
         email,
-        username,
+        username: email.split('@')[0],
         password1: password,
         password2: confirmPassword,
       });
@@ -76,16 +76,16 @@ export default function Signup() {
               <label>Email address</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
             </div>
-            <div className="form-field">
-              <label>Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
-                required
-              />
-            </div>
+{/*             <div className="form-field"> */}
+{/*               <label>Username</label> */}
+{/*               <input */}
+{/*                 type="text" */}
+{/*                 value={username} */}
+{/*                 onChange={(e) => setUsername(e.target.value)} */}
+{/*                 placeholder="Enter username" */}
+{/*                 required */}
+{/*               /> */}
+{/*             </div> */}
             <div className="form-field">
               <label>Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" required />
