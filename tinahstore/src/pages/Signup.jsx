@@ -17,18 +17,28 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
+
     try {
-      await axios.post(`${API_URL}/auth/registration/`, { email, password, re_password: confirmPassword });
-      navigate('/account'); // Redirect to login after signup
+      await axios.post(`${API_URL}/auth/registration/`, {
+        email,
+        password1: password,
+        password2: confirmPassword,
+      });
+
+      navigate('/account'); // or '/login' if that's your flow
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError(
+        err.response?.data
+          ? JSON.stringify(err.response.data)
+          : 'Registration failed. Please try again.'
+      );
     }
   };
-
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {

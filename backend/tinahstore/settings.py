@@ -13,13 +13,15 @@ env = environ.Env(
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# ── Core ─────────────────────────────────────────────────────────────────────
+# ── Core ──────────────────────────────────────────────────────────────────────
 
 SECRET_KEY = env('SECRET_KEY')
+DEBUG       = env('DEBUG')
 
-DEBUG = env('DEBUG')
-
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list(
+    'ALLOWED_HOSTS',
+    default=['localhost', '127.0.0.1']
+)
 
 # ── Applications ──────────────────────────────────────────────────────────────
 
@@ -54,10 +56,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',          # must be first
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',      # serve static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # CSRF disabled intentionally — API uses Token auth, not session cookies
+    # CSRF disabled — API uses Token auth, not session cookies
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
@@ -97,11 +99,7 @@ DATABASES = {
     )
 }
 
-
 # ── Cache ─────────────────────────────────────────────────────────────────────
-# LocMemCache is fine for single-instance dev/production on Railway.
-# Upgrade to Redis if you ever run multiple Railway replicas (token caching
-# for Daraja access tokens must be shared across instances).
 
 CACHES = {
     'default': {
@@ -126,29 +124,31 @@ TIME_ZONE     = 'Africa/Nairobi'
 USE_I18N      = True
 USE_TZ        = True
 
-# ── Static & media files ──────────────────────────────────────────────────────
+# ── Static files ──────────────────────────────────────────────────────────────
 
 STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# WhiteNoise — compressed static files with long-lived cache headers
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media — local in development, swap for S3/R2 in production (see below)
-MEDIA_URL  = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# ── Media files ───────────────────────────────────────────────────────────────
+# R2 is enabled only when R2_ACCESS_KEY_ID is present in the environment.
+# Falls back to local media storage in development or if R2 isn't configured.
 
-# ── S3 / Cloudflare R2 media storage (uncomment when ready) ──────────────────
-# pip install django-storages boto3
-#
-DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID       = env('R2_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME')
-AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL')   # e.g. https://<accountid>.r2.cloudflarestorage.com
-AWS_S3_CUSTOM_DOMAIN    = env('R2_PUBLIC_URL', default='')
-AWS_DEFAULT_ACL         = 'public-read'
-AWS_QUERYSTRING_AUTH    = False
+R2_ACCESS_KEY_ID = env('R2_ACCESS_KEY_ID', default='')
+
+if R2_ACCESS_KEY_ID:
+    DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID       = R2_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY', default='')
+    AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME', default='')
+    AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL', default='')
+    AWS_S3_CUSTOM_DOMAIN    = env('R2_PUBLIC_URL', default='')
+    AWS_DEFAULT_ACL         = 'public-read'
+    AWS_QUERYSTRING_AUTH    = False
+else:
+    # Local media — fine for development, not suitable for production
+    MEDIA_URL  = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── DRF ──────────────────────────────────────────────────────────────────────
 
@@ -163,15 +163,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 12,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        # BrowsableAPIRenderer only in debug mode — remove in production for
-        # a small security improvement (hides endpoint discovery UI)
         *(['rest_framework.renderers.BrowsableAPIRenderer'] if DEBUG else []),
     ],
 }
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# In development CORS_ALLOW_ALL_ORIGINS=True is fine.
-# In production it reads from the env var so only your domains are whitelisted.
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
@@ -181,6 +177,7 @@ else:
         'CORS_ALLOWED_ORIGINS',
         default=[
             'https://tinahstore.co.ke',
+            'https://www.tinahstore.co.ke',
             'https://tinahstore.pages.dev',
             'https://tinahstore.store',
             'https://admin-tinahstore.pages.dev',
@@ -192,20 +189,20 @@ CORS_ALLOW_CREDENTIALS = True
 # ── Security headers (production only) ───────────────────────────────────────
 
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER      = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT          = True
-    SESSION_COOKIE_SECURE        = True
-    CSRF_COOKIE_SECURE           = True
-    SECURE_HSTS_SECONDS          = 31536000   # 1 year
+    SECURE_PROXY_SSL_HEADER        = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT            = True
+    SESSION_COOKIE_SECURE          = True
+    CSRF_COOKIE_SECURE             = True
+    SECURE_HSTS_SECONDS            = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD          = True
-    SECURE_CONTENT_TYPE_NOSNIFF  = True
+    SECURE_HSTS_PRELOAD            = True
+    SECURE_CONTENT_TYPE_NOSNIFF    = True
 
 # ── Business logic ────────────────────────────────────────────────────────────
 
-DEPOSIT_PERCENTAGE       = env('DEPOSIT_PERCENTAGE')
-DELIVERY_FEE             = env('DELIVERY_FEE')
-FREE_DELIVERY_THRESHOLD  = env('FREE_DELIVERY_THRESHOLD')
+DEPOSIT_PERCENTAGE      = env('DEPOSIT_PERCENTAGE')
+DELIVERY_FEE            = env('DELIVERY_FEE')
+FREE_DELIVERY_THRESHOLD = env('FREE_DELIVERY_THRESHOLD')
 
 # ── M-PESA Daraja ─────────────────────────────────────────────────────────────
 
@@ -221,7 +218,7 @@ MPESA_ENV             = env('MPESA_ENV', default='sandbox')
 TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_CHAT_IDS  = env.list('TELEGRAM_CHAT_IDS', default=[])
 
-# ── Google OAuth ──────────────────────────────────────────────────────────────
+# ── Google OAuth / allauth ────────────────────────────────────────────────────
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -230,14 +227,17 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-ACCOUNT_EMAIL_VERIFICATION       = 'none'
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS  = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION        = 'none'
+ACCOUNT_LOGIN_METHODS             = {'email'}
+ACCOUNT_SIGNUP_FIELDS             = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
-GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID', default='')
+GOOGLE_OAUTH_CLIENT_ID     = env('GOOGLE_OAUTH_CLIENT_ID',     default='')
 GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
-GOOGLE_OAUTH_CALLBACK_URL  = env('GOOGLE_OAUTH_CALLBACK_URL', default='http://localhost:5173/auth/callback/')
+GOOGLE_OAUTH_CALLBACK_URL  = env(
+    'GOOGLE_OAUTH_CALLBACK_URL',
+    default='http://localhost:5173/auth/callback/'
+)
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -246,7 +246,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'secret':    GOOGLE_OAUTH_CLIENT_SECRET,
             'key':       ''
         },
-        'SCOPE': ['profile', 'email'],
+        'SCOPE':       ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'CALLBACK_URL': GOOGLE_OAUTH_CALLBACK_URL,
     }
@@ -254,7 +254,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 REST_AUTH = {
     'SESSION_LOGIN': False,
-    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+    'TOKEN_MODEL':   'rest_framework.authtoken.models.Token',
 }
 
 SOCIALACCOUNT_STORE_TOKENS = True
