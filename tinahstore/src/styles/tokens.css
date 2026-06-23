@@ -41,6 +41,8 @@
   --footer-heading: #EFE3CD;
   --newsletter-bg: #0D3B36;
   --newsletter-text: #FFFFFF;
+  --announce-bg: #0D3B36;
+  --announce-text: #E7F0EC;
 }
 
 /* Dark Theme Variables */
@@ -66,4 +68,6 @@
   --footer-heading: #C9A873;
   --newsletter-bg: #1A221F;
   --newsletter-text: #E7F0EC;
+  --announce-bg: #051513;
+  --announce-text: #A0B0A8;
 }

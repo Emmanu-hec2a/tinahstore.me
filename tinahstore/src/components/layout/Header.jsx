@@ -37,7 +37,7 @@ export default function Header() {
       <AnnounceBar />
       <div className="container nav-row">
         <Link to="/" className="logo">Tinah<span>Store</span></Link>
-        <nav className={`main-nav ${navOpen ? 'open' : ''}`}>
+        <nav className="main-nav">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/shop">Shop</NavLink>
           <a href="/#about">About</a>
@@ -63,7 +63,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Nav Drawer */}
-      <nav className={`main-nav ${navOpen ? 'open' : ''}`}>
+      <nav className={`mobile-nav ${navOpen ? 'open' : ''}`}>
         <NavLink to="/" onClick={() => setNavOpen(false)}>Home</NavLink>
         <NavLink to="/shop" onClick={() => setNavOpen(false)}>Shop</NavLink>
         <a href="/#about" onClick={() => setNavOpen(false)}>About</a>
