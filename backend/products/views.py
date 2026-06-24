@@ -2,6 +2,7 @@ import json
 from rest_framework import generics, filters, status
 from rest_framework.response import Response
 from django.utils.decorators import method_decorator
+from rest_framework.decorators import api_view
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
 from .models import Category, Product
@@ -162,7 +163,7 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
     lookup_field = 'slug'
 
-from rest_framework.decorators import api_view
+
 from rest_framework.response import Response
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
