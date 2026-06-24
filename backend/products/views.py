@@ -15,6 +15,18 @@ from PIL import Image
 from io import BytesIO
 import os
 
+@api_view(['GET'])
+def debug_storage(request):
+    from django.conf import settings
+    import os
+    return Response({
+        'storage': settings.DEFAULT_FILE_STORAGE,
+        'bucket': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'NOT SET'),
+        'endpoint': getattr(settings, 'AWS_S3_ENDPOINT_URL', 'NOT SET'),
+        'key_prefix': getattr(settings, 'AWS_ACCESS_KEY_ID', 'NOT SET')[:6],
+        'r2_key_env': os.environ.get('R2_ACCESS_KEY_ID', 'NOT SET')[:6],
+    })
+
 def process_and_upload_image(image_file, product_id):
     """Process image and upload directly to R2."""
     img = Image.open(image_file)

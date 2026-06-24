@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import ProductListView, ProductDetailView, RelatedProductView, test_upload
+from .views import ProductListView, ProductDetailView, RelatedProductView, test_upload, debug_storage
 from .views_reviews import ProductReviewListCreateView
 
 urlpatterns = [
     path('', ProductListView.as_view(), name='product-list'),
+    path('debug-storage/', debug_storage),
     path('test-upload/', test_upload),  # ← must be before <slug:slug>/
     path('reviews/', ProductReviewListCreateView.as_view(), name='product-reviews'),
     path('<slug:slug>/', ProductDetailView.as_view(), name='product-detail'),
