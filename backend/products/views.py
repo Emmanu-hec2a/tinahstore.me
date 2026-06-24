@@ -112,3 +112,21 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
+@api_view(['POST'])
+def test_upload(request):
+    if 'image' not in request.FILES:
+        return Response({'error': 'No image provided'}, status=400)
+
+    image = request.FILES['image']
+    try:
+        path = default_storage.save(f'test/{image.name}', ContentFile(image.read()))
+        url = default_storage.url(path)
+        return Response({'success': True, 'path': path, 'url': url})
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
