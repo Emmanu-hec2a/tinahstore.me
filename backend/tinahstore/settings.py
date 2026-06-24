@@ -184,6 +184,7 @@ else:
             'https://www.tinahstore.co.ke',
             'https://tinahstore.pages.dev',
             'https://tinahstore.store',
+            'https://admin.tinahstore.store',
             'https://admin-tinahstore.pages.dev',
         ]
     )
