@@ -48,9 +48,10 @@ def process_and_upload_image(image_file, product_id):
 
     original_name = os.path.basename(image_file.name)
     clean_name = f"products/{product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+    print(f"DEBUG: About to upload {clean_name}, size={output.getbuffer().nbytes} bytes")
 
     saved_path = default_storage.save(clean_name, ContentFile(output.read()))
-    print(f"DEBUG: Uploaded to R2: {saved_path}")
+    print(f"DEBUG: Saved to {saved_path}, URL={url}")
     return saved_path
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
