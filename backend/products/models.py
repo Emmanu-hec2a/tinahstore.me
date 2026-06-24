@@ -56,33 +56,8 @@ class ProductImage(models.Model):
     is_primary = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if self.image and not self.pk:
-            try:
-                img = Image.open(self.image)
-
-                if img.mode in ("RGBA", "P"):
-                    img = img.convert("RGB")
-
-                max_size = (1200, 1200)
-                img.thumbnail(max_size, Image.Resampling.LANCZOS)
-
-                output = BytesIO()
-                img.save(output, format='JPEG', quality=85, optimize=True)
-                output.seek(0)
-
-                original_name = os.path.basename(self.image.name)
-                clean_name = f"{self.product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
-
-                # Explicitly save to default_storage (R2)
-                from django.core.files.storage import default_storage
-                saved_path = default_storage.save(clean_name, ContentFile(output.read()))
-                self.image.name = saved_path  # just update the path, don't re-save file
-
-            except Exception as e:
-                print(f"Image processing error: {e}")
-                raise
-
         super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Image for {self.product.name}"
 

@@ -7,6 +7,33 @@ from django.shortcuts import get_object_or_404
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer
 
+
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
+from PIL import Image
+from io import BytesIO
+import os
+
+def process_and_upload_image(image_file, product_id):
+    """Process image and upload directly to R2."""
+    img = Image.open(image_file)
+
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+
+    img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
+
+    output = BytesIO()
+    img.save(output, format='JPEG', quality=85, optimize=True)
+    output.seek(0)
+
+    original_name = os.path.basename(image_file.name)
+    clean_name = f"{product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+
+    saved_path = default_storage.save(clean_name, ContentFile(output.read()))
+    print(f"DEBUG: Uploaded to R2: {saved_path}")
+    return saved_path
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
@@ -48,7 +75,12 @@ class ProductListView(generics.ListCreateAPIView):
             
         # 4. Save Images
         for img in images_data:
-            ProductImage.objects.create(product=product, image=img)
+            try:
+                path = process_and_upload_image(img, product.id)
+                ProductImage.objects.create(product=product, image=path)
+                print(f"DEBUG: ProductImage created with path {path}")
+            except Exception as e:
+                print(f"DEBUG ERROR: {e}")
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -89,7 +121,12 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         images_data = request.FILES.getlist('images')
         from .models import ProductImage
         for img in images_data:
-            ProductImage.objects.create(product=instance, image=img)
+            try:
+                path = process_and_upload_image(img, instance.id)  # ← instance
+                ProductImage.objects.create(product=instance, image=path)  # ← instance
+                print(f"DEBUG: ProductImage created with path {path}")
+            except Exception as e:
+                print(f"DEBUG ERROR: {e}")
 
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
