@@ -42,9 +42,27 @@ for page in pages:
     for obj in page.get('Contents', []):
         all_keys.append(obj['Key'])
 
-print('All files in R2:')
-for key in all_keys:
-    print(' -', key)
+# List files
+print("\nAll files in R2:")
+try:
+    response = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+    for obj in response.get('Contents', []):
+        print(' -', obj['Key'])
+except Exception as e:
+    print("LIST ERROR:", e)
+
+# Try uploading a test file
+print("\nTesting upload...")
+try:
+    s3.put_object(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+        Key='test/hello.txt',
+        Body=b'hello from railway',
+        ContentType='text/plain',
+    )
+    print("Upload SUCCESS")
+except Exception as e:
+    print("Upload ERROR:", e)
 
 print()
 

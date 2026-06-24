@@ -132,24 +132,31 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ── Media files ───────────────────────────────────────────────────────────────
-# R2 is enabled only when R2_ACCESS_KEY_ID is present in the environment.
-# Falls back to local media storage in development or if R2 isn't configured.
+# R2 configuration using django-storages (S3Boto3Storage)
+# Falls back to local media storage in development if R2 isn't configured.
 
 R2_ACCESS_KEY_ID = env('R2_ACCESS_KEY_ID', default='')
 
-# ── Media files ───────────────────────────────────────────────────────────────
-
-DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID       = env('R2_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME')
-AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL')
-AWS_S3_CUSTOM_DOMAIN    = env('R2_PUBLIC_URL')
-AWS_DEFAULT_ACL         = 'public-read'
-AWS_QUERYSTRING_AUTH    = False
-AWS_S3_FILE_OVERWRITE   = False
-AWS_S3_VERIFY           = True
-MEDIA_URL               = f"https://{env('R2_PUBLIC_URL')}/"
+if R2_ACCESS_KEY_ID:
+    DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID       = R2_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL')
+    
+    # Ensure custom domain doesn't have protocol prefix
+    custom_domain = env('R2_PUBLIC_URL', default='').replace('https://', '').replace('http://', '').strip('/')
+    AWS_S3_CUSTOM_DOMAIN    = custom_domain
+    
+    AWS_DEFAULT_ACL         = 'public-read'
+    AWS_QUERYSTRING_AUTH    = False
+    AWS_S3_FILE_OVERWRITE   = False
+    AWS_S3_VERIFY           = True
+    MEDIA_URL               = f"https://{custom_domain}/" if custom_domain else "/media/"
+else:
+    DEFAULT_FILE_STORAGE    = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL               = '/media/'
+    MEDIA_ROOT              = BASE_DIR / 'media'
 
 # ── DRF ──────────────────────────────────────────────────────────────────────
 

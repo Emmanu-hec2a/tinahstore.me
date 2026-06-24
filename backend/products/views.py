@@ -33,8 +33,8 @@ def debug_storage(request):
         'test_upload_url': test_url,
     })
 
-def process_and_upload_image(image_file, product_id):
-    """Process image and upload directly to R2."""
+def process_image(image_file):
+    """Process image and return a ContentFile ready for saving."""
     img = Image.open(image_file)
 
     if img.mode in ("RGBA", "P"):
@@ -45,15 +45,8 @@ def process_and_upload_image(image_file, product_id):
     output = BytesIO()
     img.save(output, format='JPEG', quality=85, optimize=True)
     output.seek(0)
-
-    original_name = os.path.basename(image_file.name)
-    clean_name = f"products/{product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
-    print(f"DEBUG: About to upload {clean_name}, size={output.getbuffer().nbytes} bytes")
-
-    saved_path = default_storage.save(clean_name, ContentFile(output.read()))
-    saved_url = default_storage.url(saved_path)
-    print(f"DEBUG: Saved to {saved_path}, URL={saved_url}")
-    return saved_path
+    
+    return ContentFile(output.read())
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
@@ -96,11 +89,17 @@ class ProductListView(generics.ListCreateAPIView):
         # 4. Save Images
         for img in images_data:
             try:
-                path = process_and_upload_image(img, product.id)
-                ProductImage.objects.create(product=product, image=path)
-                print(f"DEBUG: ProductImage created with path {path}")
+                processed_image = process_image(img)
+                original_name = os.path.basename(img.name)
+                filename = f"{product.id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+                
+                ProductImage.objects.create(
+                    product=product, 
+                    image=processed_image
+                )
+                print(f"DEBUG: ProductImage created for product {product.id}")
             except Exception as e:
-                print(f"DEBUG ERROR: {e}")
+                print(f"DEBUG ERROR during image upload: {e}")
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -142,11 +141,14 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         from .models import ProductImage
         for img in images_data:
             try:
-                path = process_and_upload_image(img, instance.id)  # ← instance
-                ProductImage.objects.create(product=instance, image=path)  # ← instance
-                print(f"DEBUG: ProductImage created with path {path}")
+                processed_image = process_image(img)
+                ProductImage.objects.create(
+                    product=instance, 
+                    image=processed_image
+                )
+                print(f"DEBUG: ProductImage updated for product {instance.id}")
             except Exception as e:
-                print(f"DEBUG ERROR: {e}")
+                print(f"DEBUG ERROR during image update: {e}")
 
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
