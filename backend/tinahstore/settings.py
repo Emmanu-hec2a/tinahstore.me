@@ -138,25 +138,40 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 R2_ACCESS_KEY_ID = env('R2_ACCESS_KEY_ID', default='')
 
 if R2_ACCESS_KEY_ID:
-    DEFAULT_FILE_STORAGE    = 'storages.backends.s3boto3.S3Boto3Storage'
-    AWS_ACCESS_KEY_ID       = R2_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY   = env('R2_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = env('R2_BUCKET_NAME')
-    AWS_S3_ENDPOINT_URL     = env('R2_ENDPOINT_URL')
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": R2_ACCESS_KEY_ID,
+                "secret_key": env('R2_SECRET_ACCESS_KEY'),
+                "bucket_name": env('R2_BUCKET_NAME'),
+                "endpoint_url": env('R2_ENDPOINT_URL'),
+                "custom_domain": env('R2_PUBLIC_URL', default='').replace('https://', '').replace('http://', '').strip('/'),
+                "file_overwrite": False,
+                "default_acl": "public-read",
+                "querystring_auth": False,
+                "verify": True,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     
-    # Ensure custom domain doesn't have protocol prefix
-    custom_domain = env('R2_PUBLIC_URL', default='').replace('https://', '').replace('http://', '').strip('/')
-    AWS_S3_CUSTOM_DOMAIN    = custom_domain
-    
-    AWS_DEFAULT_ACL         = 'public-read'
-    AWS_QUERYSTRING_AUTH    = False
-    AWS_S3_FILE_OVERWRITE   = False
-    AWS_S3_VERIFY           = True
-    MEDIA_URL               = f"https://{custom_domain}/" if custom_domain else "/media/"
+    # Still set MEDIA_URL based on custom domain
+    custom_domain = STORAGES["default"]["OPTIONS"]["custom_domain"]
+    MEDIA_URL = f"https://{custom_domain}/" if custom_domain else "/media/"
 else:
-    DEFAULT_FILE_STORAGE    = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL               = '/media/'
-    MEDIA_ROOT              = BASE_DIR / 'media'
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── DRF ──────────────────────────────────────────────────────────────────────
 

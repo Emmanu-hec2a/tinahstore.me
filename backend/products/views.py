@@ -102,8 +102,8 @@ class ProductListView(generics.ListCreateAPIView):
                 # Use the save() method of the field to ensure it hits the storage backend
                 pi.image.save(filename, processed_image, save=True)
                 
-                print(f"DEBUG: ProductImage {pi.id} saved to {pi.image.name}")
-                print(f"DEBUG: Storage used: {pi.image.storage}")
+                print(f"DEBUG SUCCESS: ProductImage {pi.id} saved to {pi.image.name}")
+                print(f"DEBUG STORAGE CLASS: {pi.image.storage.__class__.__name__}")
             except Exception as e:
                 print(f"DEBUG ERROR during image upload: {str(e)}")
 
@@ -154,7 +154,8 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
                 pi = ProductImage(product=instance)
                 pi.image.save(filename, processed_image, save=True)
                 
-                print(f"DEBUG: ProductImage {pi.id} updated for product {instance.id}")
+                print(f"DEBUG SUCCESS: ProductImage {pi.id} updated for product {instance.id}")
+                print(f"DEBUG STORAGE CLASS: {pi.image.storage.__class__.__name__}")
             except Exception as e:
                 print(f"DEBUG ERROR during image update: {str(e)}")
 
