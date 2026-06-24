@@ -29,7 +29,7 @@ export default function Cart() {
                     <ProductArt product={item.product} color="#0D3B36" />
                   )}
                 </div>
-                <div><h3>{item.product.name}</h3><span className="variant">{[item.color, item.size].filter(Boolean).join(' - ')}</span></div>
+                <div className="info-col"><h3>{item.product.name}</h3><span className="variant">{[item.color, item.size].filter(Boolean).join(' - ')}</span></div>
                 <div className="qty-col"><Stepper value={item.quantity} onChange={(qty) => cart.updateQuantity(item.productId, qty)} /></div>
                 <div className="price-col"><span className="line-total">{formatKes(item.product.price * item.quantity)}</span></div>
                 <button className="icon-btn remove-btn remove-col" aria-label="Remove item" onClick={() => cart.removeItem(item.productId)}><Icon name="trash" /></button>

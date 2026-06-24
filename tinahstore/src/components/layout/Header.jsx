@@ -24,6 +24,17 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (navOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [navOpen]);
+
   function submitSearch(event) {
     event.preventDefault();
     const query = searchQuery.trim();
