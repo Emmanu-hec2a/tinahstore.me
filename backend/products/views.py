@@ -11,11 +11,6 @@ class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
 
-class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    lookup_field = 'slug'
-
 class ProductListView(generics.ListCreateAPIView):
     queryset = Product.objects.all().order_by('-created_at')
     serializer_class = ProductListSerializer
@@ -65,6 +60,11 @@ class ProductListView(generics.ListCreateAPIView):
             queryset = queryset.filter(category__slug=category_slug)
         return queryset
 
+class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductDetailSerializer
+    lookup_field = 'slug'
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -74,7 +74,6 @@ class ProductListView(generics.ListCreateAPIView):
         variants_json = data.get('variants_json')
         if variants_json:
             variants_data = json.loads(variants_json)
-            # Simplification: Replace all variants with the new set
             from .models import ProductVariant
             instance.variants.all().delete()
             for v in variants_data:
@@ -108,3 +107,8 @@ class RelatedProductView(generics.ListAPIView):
             category=product.category,
             is_active=True
         ).exclude(id=product.id)[:4]
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
