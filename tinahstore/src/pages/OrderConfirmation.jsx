@@ -6,8 +6,8 @@ import ProductArt from '../components/product/ProductArt.jsx';
 import { formatKes } from '../data/products.js';
 import { api } from '../services/api.js';
 
-const supportEmail = 'hello@tinahstore.co.ke';
-const supportPhone = '254700000000';
+const supportEmail = 'support@tinahstore.store';
+const supportPhone = '254715877563';
 
 export default function OrderConfirmation() {
   const location = useLocation();
