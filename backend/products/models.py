@@ -56,7 +56,7 @@ class ProductImage(models.Model):
     is_primary = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if self.image:
+        if self.image and not self.pk:
             try:
                 img = Image.open(self.image)
 
@@ -70,14 +70,14 @@ class ProductImage(models.Model):
                 img.save(output, format='JPEG', quality=85, optimize=True)
                 output.seek(0)
 
-                clean_name = f"products/{self.product_id}_{slugify(os.path.splitext(self.image.name)[0])}.jpg"
-                print(f"DEBUG: Saving image as {clean_name}")  # ← debug
-                self.image.save(clean_name, ContentFile(output.read()), save=False)
-                print(f"DEBUG: Image saved successfully, URL: {self.image.url}")  # ← debug
+                original_name = os.path.basename(self.image.name)
+                clean_name = f"{self.product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+                # No 'products/' here — upload_to='products/' handles it
+                self.image = ContentFile(output.read(), name=clean_name)
 
             except Exception as e:
-                print(f"DEBUG ERROR: {e}")  # ← debug
-                raise  # re-raise so we see it
+                print(f"Image processing error: {e}")
+                raise
 
         super().save(*args, **kwargs)
     def __str__(self):
