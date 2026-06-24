@@ -24,53 +24,6 @@ s3 = boto3.client(
     region_name='auto',
 )
 
-import boto3
-from django.conf import settings
-import django, os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tinahstore.settings')
-django.setup()
-
-s3 = boto3.client(
-    's3',
-    endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    region_name='auto',
-)
-
-import time
-timestamp = str(int(time.time()))
-
-# Upload with timestamp
-key = f'test/persist-{timestamp}.txt'
-s3.put_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key, Body=b'test')
-print(f'Uploaded: {key}')
-
-# List immediately
-objects = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
-print('All objects right now:')
-for obj in objects.get('Contents', []):
-    print(' -', obj['Key'])
-
-try:
-    # Try uploading a test file
-    s3.put_object(
-        Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-        Key='test/hello.txt',
-        Body=b'hello from tinahstore',
-        ContentType='text/plain',
-    )
-    print('✅ Upload successful — R2 is working!')
-except Exception as e:
-    print('❌ Upload failed:', e)
-
-try:
-    # List bucket contents
-    objects = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
-    print('Bucket contents:', [o['Key'] for o in objects.get('Contents', [])])
-except Exception as e:
-    print('❌ List failed:', e)
-
 print()
 
 # import django, os
@@ -95,17 +48,3 @@ for key in all_keys:
 
 print()
 
-# After the put_object call, immediately list
-s3.put_object(
-    Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-    Key='test/hello2.txt',
-    Body=b'hello again',
-    ContentType='text/plain',
-)
-print('Just uploaded test/hello2.txt')
-
-# Immediately list
-objects = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
-print('Immediate listing:')
-for obj in objects.get('Contents', []):
-    print(' -', obj['Key'])
