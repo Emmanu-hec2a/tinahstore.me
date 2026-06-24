@@ -45,10 +45,10 @@ except Exception as e:
 
 print()
 
-import django, os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tinahstore.settings')
-django.setup()
-from products.models import Product
-for p in Product.objects.all():
-    if p.image:
-        print(p.id, p.image.name, p.image.url)
+# import django, os
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tinahstore.settings')
+# django.setup()
+# from products.models import Product
+# for p in Product.objects.all():
+#     if p.image:
+#         print(p.id, p.image.name, p.image.url)

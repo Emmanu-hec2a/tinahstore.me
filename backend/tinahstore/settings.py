@@ -147,6 +147,7 @@ if R2_ACCESS_KEY_ID:
     AWS_DEFAULT_ACL         = 'public-read'
     AWS_QUERYSTRING_AUTH    = False
     AWS_S3_FILE_OVERWRITE = False
+    MEDIA_URL = f"https://{env('R2_PUBLIC_URL', default='')}/"
     AWS_S3_VERIFY = True
 else:
     # Local media — fine for development, not suitable for production

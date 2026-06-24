@@ -65,11 +65,6 @@ class ProductListView(generics.ListCreateAPIView):
             queryset = queryset.filter(category__slug=category_slug)
         return queryset
 
-class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductDetailSerializer
-    lookup_field = 'slug'
-
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
