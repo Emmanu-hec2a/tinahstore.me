@@ -29,7 +29,7 @@ def process_and_upload_image(image_file, product_id):
     output.seek(0)
 
     original_name = os.path.basename(image_file.name)
-    clean_name = f"{product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+    clean_name = f"products/{product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
 
     saved_path = default_storage.save(clean_name, ContentFile(output.read()))
     print(f"DEBUG: Uploaded to R2: {saved_path}")
