@@ -97,13 +97,15 @@ class ProductListView(generics.ListCreateAPIView):
                 original_name = os.path.basename(img.name)
                 filename = f"{product.id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
                 
-                ProductImage.objects.create(
-                    product=product, 
-                    image=processed_image
-                )
-                print(f"DEBUG: ProductImage created for product {product.id}")
+                # Create the instance first
+                pi = ProductImage(product=product)
+                # Use the save() method of the field to ensure it hits the storage backend
+                pi.image.save(filename, processed_image, save=True)
+                
+                print(f"DEBUG: ProductImage {pi.id} saved to {pi.image.name}")
+                print(f"DEBUG: Storage used: {pi.image.storage}")
             except Exception as e:
-                print(f"DEBUG ERROR during image upload: {e}")
+                print(f"DEBUG ERROR during image upload: {str(e)}")
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -146,13 +148,15 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         for img in images_data:
             try:
                 processed_image = process_image(img)
-                ProductImage.objects.create(
-                    product=instance, 
-                    image=processed_image
-                )
-                print(f"DEBUG: ProductImage updated for product {instance.id}")
+                original_name = os.path.basename(img.name)
+                filename = f"{instance.id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
+                
+                pi = ProductImage(product=instance)
+                pi.image.save(filename, processed_image, save=True)
+                
+                print(f"DEBUG: ProductImage {pi.id} updated for product {instance.id}")
             except Exception as e:
-                print(f"DEBUG ERROR during image update: {e}")
+                print(f"DEBUG ERROR during image update: {str(e)}")
 
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
