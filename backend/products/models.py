@@ -72,8 +72,11 @@ class ProductImage(models.Model):
 
                 original_name = os.path.basename(self.image.name)
                 clean_name = f"{self.product_id}_{slugify(os.path.splitext(original_name)[0])}.jpg"
-                # No 'products/' here — upload_to='products/' handles it
-                self.image = ContentFile(output.read(), name=clean_name)
+
+                # Explicitly save to default_storage (R2)
+                from django.core.files.storage import default_storage
+                saved_path = default_storage.save(clean_name, ContentFile(output.read()))
+                self.image.name = saved_path  # just update the path, don't re-save file
 
             except Exception as e:
                 print(f"Image processing error: {e}")

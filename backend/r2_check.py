@@ -52,3 +52,15 @@ print()
 # for p in Product.objects.all():
 #     if p.image:
 #         print(p.id, p.image.name, p.image.url)
+
+# List ALL objects in bucket
+paginator = s3.get_paginator('list_objects_v2')
+pages = paginator.paginate(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+all_keys = []
+for page in pages:
+    for obj in page.get('Contents', []):
+        all_keys.append(obj['Key'])
+
+print('All files in R2:')
+for key in all_keys:
+    print(' -', key)
