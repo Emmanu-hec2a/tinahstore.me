@@ -51,7 +51,8 @@ def process_and_upload_image(image_file, product_id):
     print(f"DEBUG: About to upload {clean_name}, size={output.getbuffer().nbytes} bytes")
 
     saved_path = default_storage.save(clean_name, ContentFile(output.read()))
-    print(f"DEBUG: Saved to {saved_path}, URL={url}")
+    saved_url = default_storage.url(saved_path)
+    print(f"DEBUG: Saved to {saved_path}, URL={saved_url}")
     return saved_path
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
