@@ -46,7 +46,11 @@ def process_image(image_file):
     img.save(output, format='JPEG', quality=85, optimize=True)
     output.seek(0)
     
-    return ContentFile(output.read())
+    # We must provide a name for the ContentFile so Django knows the extension/filename
+    original_name = os.path.basename(image_file.name)
+    name = f"{slugify(os.path.splitext(original_name)[0])}.jpg"
+    
+    return ContentFile(output.read(), name=name)
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
