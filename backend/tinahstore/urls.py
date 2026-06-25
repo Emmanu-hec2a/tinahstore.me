@@ -8,6 +8,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('api/v1/auth/token/', obtain_auth_token, name='api_token_auth'),
     path('api/v1/auth/me/', get_me, name='auth_me'),
     path('api/v1/auth/change-password/', change_password, name='change_password'),

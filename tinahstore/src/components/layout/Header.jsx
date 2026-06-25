@@ -46,30 +46,32 @@ export default function Header() {
   return (
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <AnnounceBar />
-      <div className="container nav-row">
-        <Link to="/" className="logo">Tinah<span>Store</span></Link>
-        <nav className="main-nav">
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/shop">Shop</NavLink>
-          <a href="/#about">About</a>
-          <a href="/#contact">Contact</a>
-        </nav>
-        <div className="nav-icons">
-          <ThemeToggle />
-          <button className="icon-btn" aria-label="Search" onClick={() => setSearchOpen((open) => !open)}><Icon name="search" /></button>
-          <Link to="/account" className="icon-btn" aria-label="Account">
-            {user ? <span className="text-xs font-bold bg-teal-pale text-teal-ink w-6 h-6 rounded-full flex items-center justify-center">{(user.username || user.email).charAt(0).toUpperCase()}</span> : <Icon name="user" />}
-          </Link>
-          <Link to="/wishlist" className="icon-btn" aria-label="Wishlist"><Icon name="heart" />{wishlist.count > 0 && <span className="badge">{wishlist.count}</span>}</Link>
-          <Link to="/cart" className="icon-btn" aria-label="Cart"><Icon name="bag" /><span className="badge">{cart.count}</span></Link>
-          <button
-            className={`icon-btn nav-toggle ${navOpen ? 'active' : ''}`}
-            aria-label="Menu"
-            onClick={() => setNavOpen((open) => !open)}
-            style={{ position: 'relative', zIndex: 110 }}
-          >
-            <Icon name={navOpen ? "x" : "menu"} />
-          </button>
+      <div className="nav-row-bg">
+        <div className="container nav-row">
+          <Link to="/" className="logo">Tinah<span>Store</span></Link>
+          <nav className="main-nav">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/shop">Shop</NavLink>
+            <a href="/#about">About</a>
+            <a href="/#contact">Contact</a>
+          </nav>
+          <div className="nav-icons">
+            <ThemeToggle />
+            <button className="icon-btn" aria-label="Search" onClick={() => setSearchOpen((open) => !open)}><Icon name="search" /></button>
+            <Link to="/account" className="icon-btn" aria-label="Account">
+              {user ? <span className="text-xs font-bold bg-teal-pale text-teal-ink w-6 h-6 rounded-full flex items-center justify-center">{(user.username || user.email).charAt(0).toUpperCase()}</span> : <Icon name="user" />}
+            </Link>
+            <Link to="/wishlist" className="icon-btn" aria-label="Wishlist"><Icon name="heart" />{wishlist.count > 0 && <span className="badge">{wishlist.count}</span>}</Link>
+            <Link to="/cart" className="icon-btn" aria-label="Cart"><Icon name="bag" /><span className="badge">{cart.count}</span></Link>
+            <button
+              className={`icon-btn nav-toggle ${navOpen ? 'active' : ''}`}
+              aria-label="Menu"
+              onClick={() => setNavOpen((open) => !open)}
+              style={{ position: 'relative', zIndex: 110 }}
+            >
+              <Icon name={navOpen ? "x" : "menu"} />
+            </button>
+          </div>
         </div>
       </div>
 
