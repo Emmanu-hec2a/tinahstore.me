@@ -131,7 +131,7 @@ p{color:var(--ink)}
 .announce-bar{background:var(--announce-bg);color:var(--announce-text);text-align:center;font-size:12.5px;letter-spacing:.03em;padding:9px 16px;transition: background var(--theme-transition), color var(--theme-transition);}
 .announce-bar strong{color:var(--brand-brass)}
 [data-theme='dark'] .announce-bar strong { color: var(--brass); }
-.site-header{background:var(--porcelain);position:sticky;top:0;z-index:900;transition:box-shadow .2s ease,background .2s ease}
+.site-header{background:var(--porcelain);position:sticky;top:0;z-index:900;transition:box-shadow .2s ease,background .2s ease; width: 100%;}
 .site-header.scrolled{background:var(--header-bg);backdrop-filter: blur(8px);box-shadow:0 1px 0 var(--hairline)}
 .nav-row{display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
 .logo{font-family:var(--font-display);font-size:24px;color:var(--teal-ink);letter-spacing:-.01em}
