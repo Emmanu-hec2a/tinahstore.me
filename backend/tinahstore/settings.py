@@ -23,6 +23,14 @@ ALLOWED_HOSTS = env.list(
     default=['localhost', '127.0.0.1']
 )
 
+# settings.py
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.tinahstore.store",
+    "https://tinahstore.store",  # Good practice to include your frontend too
+]
+
+
 # ── Applications ──────────────────────────────────────────────────────────────
 
 INSTALLED_APPS = [
