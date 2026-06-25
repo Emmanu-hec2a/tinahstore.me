@@ -43,10 +43,10 @@ export default function Account() {
   };
 
   const handleGoogleLogin = useGoogleLogin({
-      flow: 'auth-code',
+//       flow: 'auth-code',
       onSuccess: async (tokenResponse) => {
           try {
-            await googleLogin(codeResponse.code);
+            await googleLogin(tokenResponse.access_token);
           } catch (err) {
             setError('Google login failed');
           }
