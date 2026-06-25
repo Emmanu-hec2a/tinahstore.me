@@ -5,8 +5,8 @@ Pillow
 django-environ
 requests
 psycopg2-binary
-django-allauth==0.63.6
-dj-rest-auth==6.0.0
+django-allauth
+dj-rest-auth
 PyJWT
 cryptography
 django-storages
