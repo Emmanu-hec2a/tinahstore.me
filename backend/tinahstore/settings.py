@@ -282,6 +282,9 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_AUTO_SIGNUP = True       # ← auto-create account on first Google login
+SOCIALACCOUNT_EMAIL_REQUIRED = False   # ← don't block on missing email
+
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 
