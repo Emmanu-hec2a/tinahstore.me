@@ -43,13 +43,15 @@ export default function Account() {
   };
 
   const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        await googleLogin(tokenResponse.access_token);
-      } catch (err) {
-        setError('Google login failed');
-      }
-    },
+      flow: 'auth-code',
+      onSuccess: async (tokenResponse) => {
+          try {
+            await googleLogin(codeResponse.code);
+          } catch (err) {
+            setError('Google login failed');
+          }
+      },
+      onError: () => setError('Google login failed'),
   });
 
   if (user) {
