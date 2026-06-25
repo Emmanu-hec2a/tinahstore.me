@@ -7,5 +7,8 @@ class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     # In production, this MUST match the authorized redirect URI in Google Console
     # and what the frontend is actually using.
-    callback_url = getattr(settings, 'GOOGLE_OAUTH_CALLBACK_URL', "http://localhost:5173/auth/callback/")
+    @property
+    def callback_url(self):
+        return getattr(settings, 'GOOGLE_OAUTH_CALLBACK_URL', "http://localhost:5173/auth/callback/")
+
     client_class = OAuth2Client
