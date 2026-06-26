@@ -28,8 +28,9 @@ export default function ProductGallery({ product, color }) {
               key={index}
               className={`thumb ${index === activeIndex ? 'active' : ''}`}
               onClick={() => setActiveIndex(index)}
+              aria-label={`View image ${index + 1} of ${product.name}`}
             >
-              <img src={img.image} alt="" className="product-image" />
+              <img src={img.image} alt={`${product.name} thumbnail ${index + 1}`} className="product-image" />
             </button>
           ))}
         </div>

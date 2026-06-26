@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Icon from '../components/icons/Icon.jsx';
+import SEO from '../components/common/SEO.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import ToteIllustration from '../assets/illustrations/ToteIllustration.jsx';
 import CrossbodyIllustration from '../assets/illustrations/CrossbodyIllustration.jsx';
@@ -36,8 +37,41 @@ export default function Home() {
     }
   }, [hash]);
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "TinahStore",
+    "url": "https://tinahstore.store",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://tinahstore.store/shop?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "TinahStore",
+    "url": "https://tinahstore.store",
+    "logo": "https://tinahstore.store/favicon.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+254-715-877-563",
+      "contactType": "customer service",
+      "areaServed": "KE",
+      "availableLanguage": "en"
+    },
+    "sameAs": [
+      "https://www.tiktok.com/@hotfits28"
+    ]
+  };
+
   return (
     <>
+      <SEO
+        schemaData={[homeSchema, orgSchema]}
+      />
       <section className="hero">
         <div className="container">
           <div className="hero-copy">

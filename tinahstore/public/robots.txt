@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and sensitive paths
+Disallow: /account
+Disallow: /checkout
+Disallow: /confirmation
+
+Sitemap: https://tinahstore.store/sitemap.xml

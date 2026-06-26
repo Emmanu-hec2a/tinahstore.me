@@ -7,10 +7,12 @@ import Badge from '../ui/Badge.jsx';
 import ProductArt from './ProductArt.jsx';
 import { WishlistContext } from '../../context/WishlistContext.jsx';
 import { useCart } from '../../hooks/useCart.js';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function ProductCard({ product, quickAdd = false, className = '' }) {
   const wishlist = useContext(WishlistContext);
   const cart = useCart();
+  const { showToast } = useToast();
   const wished = wishlist.ids.includes(product.id);
 
   return (
@@ -41,6 +43,7 @@ export default function ProductCard({ product, quickAdd = false, className = '' 
               onClick={(event) => {
                 event.preventDefault();
                 cart.addItem(product);
+                showToast(`${product.name} added to cart!`);
               }}
             >
               Quick add <Icon name="bag" className="icon icon-sm" />

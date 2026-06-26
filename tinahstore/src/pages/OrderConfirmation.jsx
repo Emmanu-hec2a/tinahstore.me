@@ -12,36 +12,15 @@ const supportPhone = '254715877563';
 export default function OrderConfirmation() {
   const location = useLocation();
   const [order, setOrder] = useState(location.state?.order);
-  const [checkoutRequestId, setCheckoutRequestId] = useState(location.state?.checkoutRequestId);
-  const [paymentStatus, setPaymentStatus] = useState(order?.deposit_paid ? 'paid' : 'pending');
-  const [retryStatus, setRetryStatus] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState('pending_verification');
 
-  // Poll for payment status
+  // Polling removed for manual flow
   useEffect(() => {
-    if (paymentStatus === 'paid' || !checkoutRequestId) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const status = await api.getMpesaStatus(checkoutRequestId);
-        if (status.deposit_paid) {
-          setPaymentStatus('paid');
-          // Update order locally to reflect payment
-          setOrder(prev => ({ ...prev, deposit_paid: true, status: status.order_status }));
-          clearInterval(interval);
-        }
-      } catch (err) {
-        console.error('Polling error:', err);
-      }
-    }, 3000);
-
-    // Stop polling after 2 minutes to save resources
-    const timeout = setTimeout(() => clearInterval(interval), 120000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [checkoutRequestId, paymentStatus]);
+    // We only set to 'paid' if the order object already says so (e.g. from backend)
+    if (order?.deposit_paid) {
+      setPaymentStatus('paid');
+    }
+  }, [order]);
 
   async function handleRetryPayment() {
     if (!order) return;
@@ -79,7 +58,7 @@ export default function OrderConfirmation() {
           <Link to="/" className="logo">Tinah<span>Store</span></Link>
           <div className="secure-pill">
             <Icon name="lock" className="icon icon-sm" />
-            {paymentStatus === 'paid' ? 'Order confirmed' : 'Awaiting deposit'}
+            {paymentStatus === 'paid' ? 'Order confirmed' : 'Verification in progress'}
           </div>
         </div>
       </header>
@@ -102,32 +81,29 @@ export default function OrderConfirmation() {
             </div>
             <p className="eyebrow" style={{ justifyContent: 'center' }}>Order {order.order_number}</p>
             <h1 className="h2" id="confirmation-title">
-              {paymentStatus === 'paid' ? `Thank you, ${order.customer_name}.` : 'Complete your deposit'}
+              {paymentStatus === 'paid' ? `Thank you, ${order.customer_name}.` : 'Verification in progress'}
             </h1>
             <p className="lede" style={{ margin: '14px auto 0', maxWidth: 600 }}>
               {paymentStatus === 'paid'
                 ? "Your order is confirmed and being prepared at our Nairobi workshop. We'll message you once it's out for delivery."
-                : "We've sent an M-PESA payment prompt to your phone. Please enter your PIN to confirm the 60% deposit. This page will update automatically."}
+                : `We've received your order and the Transaction Code (${order.transaction_code || location.state?.transactionCode || 'N/A'}). Our team is manually verifying the deposit. You'll receive a confirmation message shortly.`}
             </p>
 
-            {paymentStatus !== 'paid' && (
-              <div className="confirm-actions" style={{ marginTop: 24 }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleRetryPayment}
-                  disabled={retryStatus === 'loading'}
-                >
-                  <Icon name="refresh" className={`icon icon-sm ${retryStatus === 'loading' ? 'spin' : ''}`} />
-                  {retryStatus === 'loading' ? 'Sending prompt...' : 'Resend M-PESA prompt'}
-                </button>
-                {retryStatus === 'success' && <p className="muted" style={{ fontSize: 13, color: '#059669', marginTop: 8 }}>Prompt sent! Check your phone.</p>}
-              </div>
-            )}
-
-            {paymentStatus === 'paid' && (
+            {paymentStatus === 'paid' ? (
               <div className="confirm-actions">
                 <Link to="/shop" className="btn btn-primary"><Icon name="bag" className="icon icon-sm" /> Continue shopping</Link>
                 <button className="btn btn-outline" type="button" onClick={() => window.print()}><Icon name="printer" className="icon icon-sm" /> Print receipt</button>
+              </div>
+            ) : (
+              <div className="confirm-actions">
+                <a
+                  href={`https://wa.me/${supportPhone}?text=${encodeURIComponent(`Hi TinahStore, I've just placed order ${order.order_number} and paid the deposit. Transaction code: ${order.transaction_code || ''}`)}`}
+                  className="btn btn-primary"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icon name="whatsapp" className="icon icon-sm" /> Confirm on WhatsApp
+                </a>
               </div>
             )}
           </section>
@@ -135,14 +111,17 @@ export default function OrderConfirmation() {
           <section className="confirm-card confirm-summary" aria-label="Order details">
             <h3>Order details</h3>
             <div className="confirm-row"><span>Order number</span><span className="mono">{order.order_number}</span></div>
-            <div className="confirm-row"><span>Payment method</span><span>{order.payment_method === 'mpesa' ? 'M-PESA + Cash' : 'Card'}</span></div>
+            <div className="confirm-row"><span>Payment method</span><span>M-PESA Deposit + Cash on Delivery</span></div>
             <div className="confirm-row">
               <span>Status</span>
               <span className={`confirm-status ${paymentStatus}`}>
                 <Icon name={paymentStatus === 'paid' ? 'checkCircle' : 'clock'} className="icon icon-sm" />
-                {paymentStatus === 'paid' ? 'Deposit Paid' : 'Pending Deposit'}
+                {paymentStatus === 'paid' ? 'Deposit Verified' : 'Awaiting Verification'}
               </span>
             </div>
+            {order.transaction_code && (
+               <div className="confirm-row"><span>Transaction Code</span><span className="mono">{order.transaction_code}</span></div>
+            )}
             <div className="confirm-row"><span>Delivery address</span><span>{order.delivery_address}, {order.city}</span></div>
           </section>
 

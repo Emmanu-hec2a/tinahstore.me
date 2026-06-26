@@ -11,24 +11,21 @@ import { WishlistContext } from '../context/WishlistContext.jsx';
 export default function Checkout() {
   const [payment, setPayment] = useState('manual');
   const [isSubmitting, setSubmitting] = useState(false);
-  const [canSubmitManual, setCanSubmitManual] = useState(false);
-  const [manualTimer, setManualTimer] = useState(30);
   const [error, setError] = useState(null);
+  const [deliveryArea, setDeliveryArea] = useState('nairobi');
+  const [transactionCode, setTransactionCode] = useState('');
+
   const wishlist = useContext(WishlistContext);
   const cart = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let interval;
-    if (payment === 'manual' && manualTimer > 0) {
-      interval = setInterval(() => {
-        setManualTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (payment === 'manual' && manualTimer === 0) {
-      setCanSubmitManual(true);
+    if (deliveryArea === 'nairobi') {
+      cart.setDeliveryFee(89);
+    } else {
+      cart.setDeliveryFee(0); // Show as variable/TBD
     }
-    return () => clearInterval(interval);
-  }, [payment, manualTimer]);
+  }, [deliveryArea]);
 
   async function placeOrder(event) {
     event.preventDefault();
@@ -43,7 +40,8 @@ export default function Checkout() {
       delivery_address: formData.get('address'),
       city: formData.get('city'),
       county: formData.get('county'),
-      payment_method: payment,
+      payment_method: 'mpesa_manual',
+      transaction_code: transactionCode,
       items: cart.items.map(item => ({
         product_slug: item.product.slug,
         variant_id: item.variantId || null,
@@ -91,6 +89,18 @@ export default function Checkout() {
                 <Field label="Phone number" name="phone" placeholder="0712345678" type="tel" required />
                 <Field label="Email" name="email" placeholder="amani@email.com" type="email" required />
                 <Field className="full" label="Delivery address" name="address" placeholder="Street, building, apartment" required />
+                <div className="form-field">
+                  <label>Delivery Area</label>
+                  <select
+                    name="deliveryArea"
+                    value={deliveryArea}
+                    onChange={(e) => setDeliveryArea(e.target.value)}
+                    required
+                  >
+                    <option value="nairobi">Nairobi, Juja, Thika, Thika Rd (KES 89)</option>
+                    <option value="other">Outside these areas (Variable fee)</option>
+                  </select>
+                </div>
                 <Field label="City / Town" name="city" placeholder="Nairobi" required />
                 <div className="form-field">
                   <label>County</label>
@@ -100,6 +110,7 @@ export default function Checkout() {
                     <option value="Kisumu">Kisumu</option>
                     <option value="Nakuru">Nakuru</option>
                     <option value="Kiambu">Kiambu</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
               </div>
@@ -107,30 +118,42 @@ export default function Checkout() {
             <div className="form-section">
               <h3>Payment method</h3>
               <div className="pay-options">
-                <PayOption active={payment === 'manual'} onChange={() => { setPayment('manual'); setManualTimer(30); setCanSubmitManual(false); }} name="pay" value="manual" icon="phone" label="Mobile Money (M-PESA / Airtel)">
-                  <div style={{ background: 'var(--oxblood-pale)', padding: '12px', borderRadius: 8, fontSize: 13, color: 'var(--oxblood)', marginBottom: 16, border: '1px solid var(--oxblood)' }}>
-                    <p><b>Note:</b> Automated STK Push is currently undergoing maintenance. Please use the manual <b>Send Money</b> option below to secure your order.</p>
+                <PayOption active={payment === 'manual'} onChange={() => setPayment('manual')} name="pay" value="manual" icon="phone" label="M-PESA / Airtel Money (Manual Verification)">
+                  <div style={{ background: 'var(--teal-pale)', padding: '14px', borderRadius: 8, fontSize: 13, color: 'var(--teal-ink)', marginBottom: 16, border: '1px solid var(--hairline)' }}>
+                    <p><b>Instructions:</b></p>
+                    <p style={{ marginTop: 6 }}>1. Send the 60% deposit (<b>{formatKes(cart.total * 0.6)}</b>) to the number below:</p>
+                    <div style={{ marginTop: 10, padding: '10px', background: 'var(--surface)', borderRadius: 6, border: '1px solid var(--hairline)' }}>
+                      <p><b>M-PESA:</b> 0715877563 (Symon Nyamburi)</p>
+                      <p><b>Airtel Money:</b> 0750243752 (Symon Nyamburi)</p>
+                    </div>
+                    <p style={{ marginTop: 12 }}>2. Enter your <b>Transaction Code</b> below (e.g., RJL1234567):</p>
+                    <input
+                      type="text"
+                      placeholder="Transaction Code"
+                      value={transactionCode}
+                      onChange={(e) => setTransactionCode(e.target.value.toUpperCase())}
+                      style={{
+                        width: '100%',
+                        marginTop: 8,
+                        padding: '10px',
+                        borderRadius: 6,
+                        border: '1px solid var(--hairline)',
+                        textTransform: 'uppercase',
+                        fontWeight: 'bold'
+                      }}
+                      required={payment === 'manual'}
+                    />
                   </div>
-                  <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
-                    Send the 60% deposit (<b>{formatKes(cart.total * 0.6)}</b>) to:
-                  </p>
-                  <div style={{ background: 'var(--surface-raised)', padding: '10px', borderRadius: 8, fontSize: 13, border: '1px solid var(--hairline)' }}>
-                    <p><b>M-PESA:</b> 0715877563 (Tinah)</p>
-                    <p><b>Airtel Money:</b> 0750243752 (Tinah)</p>
-                  </div>
-                  <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>Your order will be processed once we verify the transaction. Remaining 40% paid in cash on delivery.</p>
+                  <p className="muted" style={{ fontSize: 12 }}>Your order will be verified manually. Remaining 40% balance is paid on delivery.</p>
                 </PayOption>
               </div>
             </div>
             <button
               className="btn btn-primary btn-block"
-              disabled={isSubmitting || cart.items.length === 0 || (payment === 'manual' && !canSubmitManual)}
+              disabled={isSubmitting || cart.items.length === 0 || (payment === 'manual' && !transactionCode)}
             >
-              {isSubmitting ? 'Placing order...' : (payment === 'manual' && !canSubmitManual) ? `I have sent the deposit (${manualTimer}s)` : 'Place order'}
+              {isSubmitting ? 'Placing order...' : 'Confirm Order & Pay Deposit'}
             </button>
-            {payment === 'manual' && !canSubmitManual && (
-              <p className="muted text-center" style={{ fontSize: 12, marginTop: 10 }}>Proceed to pay, will be enabled once payment is sent</p>
-            )}
           </form>
           <aside><OrderSummary cart={cart} /></aside>
         </div>
@@ -161,8 +184,8 @@ function OrderSummary({ cart }) {
         {cart.items.map((item) => (
           <div className="mini-row" key={`${item.productId}-${item.color}-${item.size}`}>
             <div className="thumb-box">
-              {item.product.primary_image ? (
-                <img src={item.product.primary_image} alt={item.product.name} className="product-image" />
+              {item.product.image || item.product.primary_image ? (
+                <img src={item.product.image || item.product.primary_image} alt={item.product.name} className="product-image" />
               ) : (
                 <ProductArt product={item.product} color="#0D3B36" />
               )}
@@ -172,8 +195,15 @@ function OrderSummary({ cart }) {
         ))}
       </div>
       <div className="summary-row"><span>Subtotal</span><span>{formatKes(cart.subtotal)}</span></div>
-      <div className="summary-row"><span>Delivery (Nairobi)</span><span>{formatKes(cart.deliveryFee)}</span></div>
+      <div className="summary-row">
+        <span>Delivery {cart.deliveryFee > 0 ? '' : '(TBD)'}</span>
+        <span>{cart.deliveryFee > 0 ? formatKes(cart.deliveryFee) : 'Variable'}</span>
+      </div>
       <div className="summary-row total"><span>Total</span><span>{formatKes(cart.total)}</span></div>
+      <div className="summary-row" style={{ color: 'var(--teal-mid)', fontWeight: 600 }}>
+        <span>60% Deposit</span>
+        <span>{formatKes(cart.total * 0.6)}</span>
+      </div>
       <div className="secure-note"><Icon name="lock" className="icon icon-sm" /> Secure SSL encrypted payment</div>
     </div>
   );

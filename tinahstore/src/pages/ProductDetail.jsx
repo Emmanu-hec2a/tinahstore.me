@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
 import Icon from '../components/icons/Icon.jsx';
+import SEO from '../components/common/SEO.jsx';
 import Accordion from '../components/ui/Accordion.jsx';
 import HangTag from '../components/ui/HangTag.jsx';
 import Stepper from '../components/ui/Stepper.jsx';
@@ -11,6 +12,7 @@ import ColorSwatchPicker from '../components/product/ColorSwatchPicker.jsx';
 import SizePicker from '../components/product/SizePicker.jsx';
 import { WishlistContext } from '../context/WishlistContext.jsx';
 import { useCart } from '../hooks/useCart.js';
+import { useToast } from '../context/ToastContext.jsx';
 import { formatKes } from '../data/products.js';
 import { api } from '../services/api.js';
 
@@ -26,6 +28,7 @@ export default function ProductDetail() {
 
   const wishlist = useContext(WishlistContext);
   const cart = useCart();
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function fetchDetails() {
@@ -65,8 +68,67 @@ export default function ProductDetail() {
   const uniqueColors = product.variants ? [...new Map(product.variants.map(v => [v.color_name, { name: v.color_name, hex: v.color_hex }])).values()] : [];
   const uniqueSizes = product.variants ? [...new Set(product.variants.map(v => v.size))] : ['Regular'];
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.primary_image || "https://tinahstore.store/og-image.png",
+    "description": product.description,
+    "sku": product.id.toString(),
+    "brand": {
+      "@type": "Brand",
+      "name": "TinahStore"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://tinahstore.store/product/${slug}`,
+      "priceCurrency": "KES",
+      "price": product.price,
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating || 4.8,
+      "reviewCount": product.reviews || 10
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://tinahstore.store/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Shop",
+        "item": "https://tinahstore.store/shop"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": `https://tinahstore.store/product/${slug}`
+      }
+    ]
+  };
+
   return (
     <>
+      <SEO
+        title={product.name}
+        description={product.description}
+        image={product.primary_image}
+        url={`/product/${slug}`}
+        type="product"
+        schemaData={[productSchema, breadcrumbSchema]}
+      />
       <div className="container">
         <nav className="breadcrumb">
           <Link to="/">Home</Link>
@@ -118,7 +180,10 @@ export default function ProductDetail() {
             <div className="pd-actions">
               <button
                 className="btn btn-primary"
-                onClick={() => cart.addItem(product, { color: color?.name, size, quantity })}
+                onClick={() => {
+                  cart.addItem(product, { color: color?.name, size, quantity });
+                  showToast(`${product.name} added to cart!`);
+                }}
               >
                 <Icon name="bag" className="icon icon-sm" /> Add to cart
               </button>

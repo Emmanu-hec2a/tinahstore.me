@@ -23,8 +23,8 @@ export default function Cart() {
             {cart.items.map((item) => (
               <div className="cart-row" key={`${item.productId}-${item.color}-${item.size}`}>
                 <div className="thumb-box">
-                  {item.product.primary_image ? (
-                    <img src={item.product.primary_image} alt={item.product.name} className="product-image" />
+                  {item.product.image || item.product.primary_image ? (
+                    <img src={item.product.image || item.product.primary_image} alt={item.product.name} className="product-image" />
                   ) : (
                     <ProductArt product={item.product} color="#0D3B36" />
                   )}

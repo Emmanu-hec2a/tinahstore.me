@@ -2,10 +2,11 @@ import { createContext, useMemo, useState } from 'react';
 import { initialCart } from '../data/products.js';
 
 export const CartContext = createContext(null);
-const deliveryFee = 250;
+const defaultDeliveryFee = 89;
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState(initialCart);
+  const [deliveryFee, setDeliveryFee] = useState(defaultDeliveryFee);
 
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const total = subtotal + (items.length ? deliveryFee : 0);
@@ -51,7 +52,7 @@ export function CartProvider({ children }) {
   }
 
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clear, subtotal, deliveryFee, total, count }}>
+    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clear, subtotal, deliveryFee, setDeliveryFee, total, count }}>
       {children}
     </CartContext.Provider>
   );

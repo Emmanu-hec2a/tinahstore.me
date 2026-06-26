@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Icon from '../components/icons/Icon.jsx';
+import SEO from '../components/common/SEO.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import { formatKes } from '../data/products.js';
 import { useProducts } from '../hooks/useProducts.js';
@@ -81,6 +82,11 @@ export default function Shop() {
 
   return (
     <>
+      <SEO
+        title="Shop All Bags"
+        description="Browse our collection of hand-finished leather and canvas bags. From structured totes to city-ready crossbody bags, find your perfect everyday carry."
+        url="/shop"
+      />
       <div className="container">
         <nav className="breadcrumb">
           <Link to="/">Home</Link><span className="sep">/</span><span className="current">Shop</span>
