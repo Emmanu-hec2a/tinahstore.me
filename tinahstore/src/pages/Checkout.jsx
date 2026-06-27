@@ -98,7 +98,7 @@ export default function Checkout() {
                     required
                   >
                     <option value="nairobi">Nairobi, Juja, Thika, Thika Rd (KES 89)</option>
-                    <option value="other">Outside these areas (Variable fee)</option>
+                    <option value="other">Outside these areas (Fee varies)</option>
                   </select>
                 </div>
                 <Field label="City / Town" name="city" placeholder="Nairobi" required />
@@ -197,7 +197,7 @@ function OrderSummary({ cart }) {
       <div className="summary-row"><span>Subtotal</span><span>{formatKes(cart.subtotal)}</span></div>
       <div className="summary-row">
         <span>Delivery {cart.deliveryFee > 0 ? '' : '(TBD)'}</span>
-        <span>{cart.deliveryFee > 0 ? formatKes(cart.deliveryFee) : 'Variable'}</span>
+        <span>{cart.deliveryFee > 0 ? formatKes(cart.deliveryFee) : 'variable'}</span>
       </div>
       <div className="summary-row total"><span>Total</span><span>{formatKes(cart.total)}</span></div>
       <div className="summary-row" style={{ color: 'var(--teal-mid)', fontWeight: 600 }}>

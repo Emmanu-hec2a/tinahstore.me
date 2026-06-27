@@ -1,12 +1,27 @@
-import { createContext, useMemo, useState } from 'react';
+import { createContext, useMemo, useState, useEffect } from 'react';
 import { initialCart } from '../data/products.js';
 
 export const CartContext = createContext(null);
 const defaultDeliveryFee = 89;
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(initialCart);
+  // Load initial cart from localStorage if available
+  const [items, setItems] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('ts_cart');
+      return savedCart ? JSON.parse(savedCart) : initialCart;
+    } catch (err) {
+      console.error('Failed to load cart from localStorage', err);
+      return initialCart;
+    }
+  });
+
   const [deliveryFee, setDeliveryFee] = useState(defaultDeliveryFee);
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('ts_cart', JSON.stringify(items));
+  }, [items]);
 
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const total = subtotal + (items.length ? deliveryFee : 0);

@@ -29,8 +29,8 @@ export default function ProductCard({ product, quickAdd = false, className = '' 
         >
           <Icon name="heart" />
         </button>
-        {product.primary_image ? (
-          <img src={product.primary_image} alt={product.name} className="product-image" />
+        {product.image || product.primary_image ? (
+          <img src={product.image || product.primary_image} alt={product.name} className="product-image" />
         ) : (
           <div className="art-fallback">
             <ProductArt product={product} />
