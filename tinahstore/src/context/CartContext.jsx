@@ -9,7 +9,11 @@ export function CartProvider({ children }) {
   const [items, setItems] = useState(() => {
     try {
       const savedCart = localStorage.getItem('ts_cart');
-      return savedCart ? JSON.parse(savedCart) : initialCart;
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) return parsed;
+      }
+      return initialCart;
     } catch (err) {
       console.error('Failed to load cart from localStorage', err);
       return initialCart;
@@ -20,7 +24,11 @@ export function CartProvider({ children }) {
 
   // Persist cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('ts_cart', JSON.stringify(items));
+    try {
+      localStorage.setItem('ts_cart', JSON.stringify(items));
+    } catch (err) {
+      console.error('Failed to save cart to localStorage', err);
+    }
   }, [items]);
 
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);

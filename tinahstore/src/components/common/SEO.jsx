@@ -15,7 +15,7 @@ export default function SEO({
   const defaultImage = 'https://tinahstore.store/og-image.png'; // Make sure to provide a default OG image
   const siteUrl = 'https://tinahstore.store';
 
-  const fullTitle = title ? `${title} | ${siteName}` : `${siteName} - Bags that carry more than your things`;
+  const fullTitle = title ? `${title} | ${siteName}` : `TinahStore | Bags that carry more than your things`;
   const metaDescription = description || defaultDescription;
   const metaKeywords = keywords || defaultKeywords;
   const metaImage = image || defaultImage;
@@ -30,6 +30,7 @@ export default function SEO({
       <link rel="canonical" href={metaUrl} />
 
       {/* Open Graph / Facebook */}
+      <meta property="og:site_name" content={siteName} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={metaUrl} />
       <meta property="og:title" content={fullTitle} />

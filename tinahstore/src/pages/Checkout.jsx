@@ -21,7 +21,7 @@ export default function Checkout() {
 
   useEffect(() => {
     if (deliveryArea === 'nairobi') {
-      cart.setDeliveryFee(89);
+      cart.setDeliveryFee(150);
     } else {
       cart.setDeliveryFee(0); // Show as variable/TBD
     }
@@ -184,8 +184,12 @@ function OrderSummary({ cart }) {
         {cart.items.map((item) => (
           <div className="mini-row" key={`${item.productId}-${item.color}-${item.size}`}>
             <div className="thumb-box">
-              {item.product.image || item.product.primary_image ? (
-                <img src={item.product.image || item.product.primary_image} alt={item.product.name} className="product-image" />
+              {(item.product.image || item.product.primary_image || (item.product.images && item.product.images[0]?.image)) ? (
+                <img
+                  src={item.product.image || item.product.primary_image || item.product.images[0]?.image}
+                  alt={item.product.name}
+                  className="product-image"
+                />
               ) : (
                 <ProductArt product={item.product} color="#0D3B36" />
               )}
