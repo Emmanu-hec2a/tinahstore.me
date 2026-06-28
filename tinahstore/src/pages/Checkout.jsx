@@ -97,7 +97,7 @@ export default function Checkout() {
                     onChange={(e) => setDeliveryArea(e.target.value)}
                     required
                   >
-                    <option value="nairobi">Nairobi, Juja, Thika, Thika Rd (KES 89)</option>
+                    <option value="nairobi">Nairobi, Juja, Thika, Thika Rd (KES 150)</option>
                     <option value="other">Outside these areas (Fee varies)</option>
                   </select>
                 </div>
