@@ -123,8 +123,8 @@ export default function Checkout() {
                     <p><b>Instructions:</b></p>
                     <p style={{ marginTop: 6 }}>1. Send the 60% deposit (<b>{formatKes(cart.total * 0.6)}</b>) to the number below:</p>
                     <div style={{ marginTop: 10, padding: '10px', background: 'var(--surface)', borderRadius: 6, border: '1px solid var(--hairline)' }}>
-                      <p><b>M-PESA:</b> 0715877563 (Symon Nyamburi)</p>
-                      <p><b>Airtel Money:</b> 0750243752 (Symon Nyamburi)</p>
+                      <p><b>M-PESA:</b> 0726911763 (CHRISTINE)</p>
+                      <p><b>Airtel Money:</b> 0750243752 (CHRISTINE)</p>
                     </div>
                     <p style={{ marginTop: 12 }}>2. Enter your <b>Transaction Code</b> below (e.g., RJL1234567):</p>
                     <input

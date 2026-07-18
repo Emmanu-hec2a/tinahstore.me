@@ -7,7 +7,7 @@ import { formatKes } from '../data/products.js';
 import { api } from '../services/api.js';
 
 const supportEmail = 'support@tinahstore.store';
-const supportPhone = '254715877563';
+const supportPhone = '254726911763';
 
 export default function OrderConfirmation() {
   const location = useLocation();

@@ -36,16 +36,16 @@ export default function Footer({ compact = false }) {
         <div className="footer-col">
           <h4>Connect</h4>
           <div className="contact-line"><Icon name="mapPin" className="icon icon-sm" /> Nairobi, Kenya</div>
-          <div className="contact-line"><Icon name="phone" className="icon icon-sm" /> +254 715 877 563</div>
-          <div className="contact-line"><Icon name="mail" className="icon icon-sm" /> support@tinahstore.store</div>
+          <div className="contact-line"><Icon name="phone" className="icon icon-sm" /> +254 726 911 763</div>
+          <div className="contact-line"><Icon name="mail" className="icon icon-sm" /> petniqueke@gmail.com</div>
         </div>
       </div>
       <div className="container footer-bottom">
         <span>© 2026 TinahStore. All rights reserved.</span>
         <div className="pay-icons">
           <span className="pay-chip">M-PESA</span>
-          <span className="pay-chip">VISA</span>
-          <span className="pay-chip">MASTERCARD</span>
+          <span className="pay-chip">AIRTEL</span>
+          <span className="pay-chip">PAYPAL</span>
         </div>
       </div>
     </footer>

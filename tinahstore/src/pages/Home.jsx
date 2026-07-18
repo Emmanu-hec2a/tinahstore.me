@@ -18,8 +18,8 @@ const categories = [
 
 const contactLinks = [
   { label: 'Gmail', value: 'support@tinahstore.store', href: 'mailto:support@tinahstore.store', icon: 'mail' },
-  { label: 'Phone', value: '+254 715 877 563', href: 'tel:+254715877563', icon: 'phone' },
-  { label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/254715877563', icon: 'whatsapp' },
+  { label: 'Phone', value: '+254 726 911 763', href: 'tel:+254726911763', icon: 'phone' },
+  { label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/254726911763', icon: 'whatsapp' },
   { label: 'TikTok', value: '@hotfits28', href: 'https://www.tiktok.com/@hotfits28', icon: 'tiktok' },
 //   { label: 'X', value: '@tinahstore', href: 'https://x.com/tinahstore', icon: 'xSocial' },
 ];
@@ -57,7 +57,7 @@ export default function Home() {
     "logo": "https://tinahstore.store/favicon.png",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+254-715-877-563",
+      "telephone": "+254-726-911-763",
       "contactType": "customer service",
       "areaServed": "KE",
       "availableLanguage": "en"
