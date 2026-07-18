@@ -17,7 +17,7 @@ const categories = [
 ];
 
 const contactLinks = [
-  { label: 'Gmail', value: 'support@tinahstore.store', href: 'mailto:support@tinahstore.store', icon: 'mail' },
+  { label: 'Gmail', value: 'petniqueke@gmail.com', href: 'mailto:petniqueke@gmail.com', icon: 'mail' },
   { label: 'Phone', value: '+254 726 911 763', href: 'tel:+254726911763', icon: 'phone' },
   { label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/254726911763', icon: 'whatsapp' },
   { label: 'TikTok', value: '@hotfits28', href: 'https://www.tiktok.com/@hotfits28', icon: 'tiktok' },

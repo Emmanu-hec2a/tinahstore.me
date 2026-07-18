@@ -6,7 +6,7 @@ import ProductArt from '../components/product/ProductArt.jsx';
 import { formatKes } from '../data/products.js';
 import { api } from '../services/api.js';
 
-const supportEmail = 'support@tinahstore.store';
+const supportEmail = 'petniqueke@gmail.com';
 const supportPhone = '254726911763';
 
 export default function OrderConfirmation() {
